@@ -13,15 +13,15 @@ int game_mode;
 
 static void usage(int status) {
 	if (status == EXIT_SUCCESS){
-		printf("Usage: reversi [OPTION] FILE\n");
-		printf("Play a reversi game interactively with humans and AIs\n");
-		printf("\n\t -s, --size SIZE\t board size (min=1, max=4 (default))\n");
-		printf("\t -c, --contest\t enable 'contest mode'\n");
-		printf("\t -b, --black-ai\t set black player as an AI\n");
-		printf("\t -w, --white-ai\t set white player as an AI\n");
-		printf("\t -v, --verbose\t verbose output\n");
-		printf("\t -V, --version\t display version and exit\n");
-		printf("\t -h, --help\t display this help\n");
+		printf("Usage: reversi [OPTION] FILE\n"
+		"Play a reversi game interactively with humans and AIs\n"
+		"\n\t -s, --size SIZE\t board size (min=1, max=4 (default))\n"
+		"\t -c, --contest\t enable 'contest mode'\n"
+		"\t -b, --black-ai\t set black player as an AI\n"
+		"\t -w, --white-ai\t set white player as an AI\n"
+		"\t -v, --verbose\t verbose output\n"
+		"\t -V, --version\t display version and exit\n"
+		"\t -h, --help\t display this help\n");
 	} else {
 		fprintf(stderr, "Try 'reversi --help' for more information\n");
 	}
@@ -64,7 +64,7 @@ static state_t board_init(size_t width) {
 			board[i][j] = EMPTY_STONE;
 		}
 	}
-	first_empty = width/2 - 1;
+	first_empty = width / 2 - 1;
 	board[first_empty][first_empty] = WHITE_STONE;
 	board[first_empty+1][first_empty+1] = WHITE_STONE;
 	
@@ -121,7 +121,7 @@ static void board_print(char** board) {
 	}
 	printf("\n");
 	for (i = 0; i < board_size; i++) {
-		switch(i) {
+		/*switch(i) {
 			case 0:
 				letter = 'A';
 				break;
@@ -146,8 +146,9 @@ static void board_print(char** board) {
 			case 7:
 				letter = 'H';
 				break;
-		}
-		printf("%c\t", letter);
+		}*/
+		letter = 'A';
+		printf("%c\t", letter + i);
 		for (j = 0; j < board_size; j++) {
 			printf("%c ", board[i][j]);
 		}
@@ -171,7 +172,7 @@ static void board_save(state_t state) {
 	f = fopen(filename, "w");
 	if (f == NULL) {
 		printf("Could not save the board, please try later\n");
-		return;
+		exit(EXIT_SUCCESS);
 	}
 	fprintf(f, "%c\n", state.player);
 	for(i = 0; i < board_size; i++) {
@@ -233,7 +234,8 @@ static state_t board_load(char * filename) {
 			strcpy(line, aux);
 		}
 		if ((num_char = is_line_correct(line)) >= 0 && num_char < strlen(line)) {
-			fprintf(stderr, "reversi: error: wrong character '%c' at line %d\n", line[num_char], num_line);
+			fprintf(stderr, "reversi: error: wrong character '%c' at line %d\n",
+			line[num_char], num_line);
 			return state;
 		}
 		row = read_row(line, num_line);
@@ -242,6 +244,10 @@ static state_t board_load(char * filename) {
 		if (width == -1) {
 			width = row.width;
 			board = malloc(sizeof(char*)*width);
+			if (board == NULL) {
+				fprintf(stderr, "No memory available\n");
+				exit(EXIT_SUCCESS);
+			}
 		} else if (width != row.width) {
 			if (board) {
 				for (i = 0; i < rows; i++) {
@@ -895,7 +901,7 @@ move_t read_move(char * string) {
 	while(*letter == ' ')
 		letter++;
 	
-	switch(tolower(letter[0])) {
+	/*switch(tolower(letter[0])) {
 		case 'h':
 			y++;
 		case 'g':
@@ -918,7 +924,14 @@ move_t read_move(char * string) {
 			move.row = -1;
 			return move;
 			
+	}*/
+	y = tolower(letter[0]) - 'a';
+	if (y > 7 || y < 0) {
+		move.column = -1;
+		move.row = -1;
+		return move;
 	}
+	letter++;
 	
 	while(*letter == ' ')
 		letter++;
